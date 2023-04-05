@@ -1,0 +1,55 @@
+I optimizations
+
+A) case 0: 
+returnMe = returnMe + (run->integer_ <<1)
+
+B) 
+case 2:
+returnMe = returnMe <<2
+
+C)
+
+switch( run->integer -(run->integer <<2) >>2)
+
+D) ask for help on this one!
+case 1 returnMe += run->inteer_ %5
+returnMe+= run->integer_-(5*(run->integer/5))
+
+
+returnMe = returnMe + (run->integer  -(run->integer<<
+
+
+II
+
+1. greeting0CPtr (e) .rodata or (g) .bss segment
+2 memory for greetings1CPtr (i) on the stack
+3 the memory to which greetings1CPtr is made to point to main (f) .data segment
+4 (e) .rodata (?)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+lecture 3 will explain part 2 of final
+
+lecture 1 & 2 will explain hw 1 and part 1 of final
+
+
+answererPid, TIME_OVER_SIGNAL
+guesserPID, TIME_OVER_SIGNAL
