@@ -1,0 +1,5 @@
+Part F: Questions:
+
+1. Prior to making the program thread-safe, the program would go on infinite loops. Failing to lock the loops meant that the threads would still continue to run, because without the locks and proper signaling, the threads would continue to run.
+
+2. With thread-safety, the program did not continue to loop infinitely and stopped as intended.
