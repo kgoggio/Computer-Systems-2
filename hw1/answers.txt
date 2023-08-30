@@ -1,0 +1,309 @@
+
+3. Timing: part 1: 
+
+~/InternationalTintedCodes$ gprof assign1-0
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 98.96      7.12     7.12        1     7.12     7.12  generateList
+  1.12      7.20     0.08        1     0.08     0.09  generateTree
+  0.14      7.21     0.01  1000000     0.00     0.00  getNextNumber
+  0.00      7.21     0.00        6     0.00     0.00  obtainNumberBetween
+  0.00      7.
+
+a. generateList takes 7.12 self sceonds at optimization level 0
+b. generateTree takes 0.08 self seconds at optimization level 0
+
+
+4. Timing part 2
+
+~/InternationalTintedCodes$ gprof assign1-2
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 97.32      2.72     2.72        1     2.72     2.72  generateList
+  2.15      2.78     0.06        1     0.06     0.07  generateTree
+  0.36      2.79     0.01  1000000     0.00     0.00  getNextNumber
+  0.36      2.80     0.01                             frame_dummy
+  0.00      2.80     0.00        1     0.00     0.00  printList
+  0.00      2.80     0.00        1     0.00     0.00  printTree
+
+a. generateList takes 2.72 self seconds
+b. generateTree takes 0.06 self seconds.
+
+5. 
+a good alorithm and datastructure optimized with O0 is faster than a bad algorithm and datastructure optimized with level 2. GenerateTree at O0 optimization is faster than GenerateList at O2 optimization because compiler optimizations aren't as efficient as more efficiently written code.
+
+6.
+A) "%d: %d time(s)\n" 
+
+objdump -s -j.rodata assign1-0
+
+assign1-0:     file format elf64-x86-64
+
+Contents of section .rodata:
+ 402000 01000200 00000000 25732028 25642d25  ........%s (%d-%
+ 402010 64293a20 00257300 25640000 00000000  d): .%s.%d......
+ 402020 57686174 20776f75 6c642079 6f75206c  What would you l
+ 402030 696b6520 746f2064 6f3f0a28 31292043  ike to do?.(1) C
+ 402040 6f756e74 20776974 68206120 6c697374  ount with a list
+ 402050 0a283229 20436f75 6e742077 69746820  .(2) Count with 
+ 402060 61207472 65650a28 30292051 7569740a  a tree.(0) Quit.
+ 402070 596f7572 2063686f 69636520 00000000  Your choice ....
+ 402080 506c6561 73652065 6e746572 20746865  Please enter the
+ 402090 206c6f77 65737420 6e756d62 65722069   lowest number i
+ 4020a0 6e207468 65207261 6e676500 00000000  n the range.....
+ 4020b0 506c6561 73652065 6e746572 20746865  Please enter the
+ 4020c0 20686967 68657374 206e756d 62657220   highest number 
+ 4020d0 696e2074 68652072 616e6765 00000000  in the range....
+ 4020e0 506c6561 73652065 6e746572 20746865  Please enter the
+ 4020f0 206e756d 62657220 6f66206e 756d6265   number of numbe
+ 402100 72732074 6f20636f 6e736964 65720025  rs to consider.%
+ 402110 643a2025 64207469 6d652873 290a0025  d: %d time(s)..%
+ 402120 643a2025 64207469 6d652873 290a00    d: %d time(s).. 
+
+
+B) the code for getNextNumber() 
+getNextNumber starts at address 0x4011f2
+
+objdump -d assign1-0 | grep "<getNextNumber>:$" -A18
+00000000004011f2 <getNextNumber>:
+  4011f2:   55                      push   %rbp
+  4011f3:   48 89 e5                mov    %rsp,%rbp
+  4011f6:   ff 15 fc 2d 00 00       callq  *0x2dfc(%rip)        # 403ff8 <mcount@GLIBC_2.2.5>
+  4011fc:   e8 af fe ff ff          callq  4010b0 <rand@plt>
+  401201:   48 c7 c2 18 40 40 00    mov    $0x404018,%rdx
+  401208:   8b 0a                   mov    (%rdx),%ecx
+  40120a:   48 c7 c2 1c 40 40 00    mov    $0x40401c,%rdx
+  401211:   8b 32                   mov    (%rdx),%esi
+  401213:   29 f1                   sub    %esi,%ecx
+  401215:   89 ca                   mov    %ecx,%edx
+  401217:   8d 4a 01                lea    0x1(%rdx),%ecx
+  40121a:   99                      cltd   
+  40121b:   f7 f9                   idiv   %ecx
+  40121d:   48 c7 c0 1c 40 40 00    mov    $0x40401c,%rax 
+  401224:   8b 00                   mov    (%rax),%eax
+  401226:   01 d0                   add    %edx,%eax
+  401228:   5d                      pop    %rbp
+  401229:   c3                      retq   
+
+C) The global variable high
+
+~/InternationalTintedCodes$ objdump -t assign1-0
+
+assign1-0:     file format elf64-x86-64
+
+0000000000404018 g     O .bss   0000000000000004              high
+
+
+
+The global variable  high is found at 0x404018 in the .bss section.
+
+D) treePtr in countWithTree()
+
+this variable can't be found because it is a local variable, and converted into offsets, which exist either on the runtime stack or the active registers during execution.
+
+
+
+
+7. 
+
+A. Storing  in registers
+000000000040122a <obtainNumberBetween>: (in assign1-0)
+
+40123b:   48 89 bd d8 fe ff ff    mov    %rdi,-0x128(%rbp)	
+401242:   89 b5 d4 fe ff ff       mov    %esi,-0x12c(%rbp)	
+401248:   89 95 d0 fe ff ff       mov    %edx,-0x130(%rbp)
+
+The local variables on the runtime stack (-0x128(%rbp)), (-0x12c(%rbp)),
+and (-0x130(%rbp)) are being stored in registers.
+
+B. Code Motion
+
+assign1-2 print tree (shortened for brevity, as its 150 lines long)
+00000000004014b0 <printTree>: 
+  4014b0:   55                      push   %rbp
+  4014b1:   48 89 e5                mov    %rsp,%rbp
+  4014b4:   41 57                   push   %r15
+  4014b6:   41 56                   push   %r14
+  4014b8:   41 55                   push   %r13
+  4014ba:   41 54                   push   %r12
+  4014bc:   53                      push   %rbx
+  4014bd:   48 83 ec 38             sub    $0x38,%rsp
+  4014c1:   ff 15 31 2b 00 00       callq  *0x2b31(%rip)        # 403ff8 <mcount@GLIBC_2.2.5>
+  4014c7:   48 89 7d b0             mov    %rdi,-0x50(%rbp)
+  4014cb:   48 85 ff                test   %rdi,%rdi
+  4014ce:   0f 84 f0 01 00 00       je     4016c4 <printTree+0x214>
+  4014d4:   48 8d 1d 2a 0c 00 00    lea    0xc2a(%rip),%rbx        # 402105 <_IO_stdin_used+0x105>
+  4014db:   48 8b 45 b0             mov    -0x50(%rbp),%rax
+  4014df:   48 8b 40 08             mov    0x8(%rax),%rax
+  4014e3:   48 89 45 c8             mov    %rax,-0x38(%rbp)
+  4014e7:   48 85 c0                test   %rax,%rax
+  4014ea:   0f 84 a9 01 00 00       je     401699 <printTree+0x1e9>
+  4014f0:   48 8b 45 c8             mov    -0x38(%rbp),%rax
+  4014f4:   48 8b 40 08             mov    0x8(%rax),%rax
+  4014f8:   48 89 45 c0             mov    %rax,-0x40(%rbp)
+  4014fc:   48 85 c0                test   %rax,%rax
+  4014ff:   0f 84 69 01 00 00       je     40166e <printTree+0x1be>
+  401505:   48 8b 45 c0             mov    -0x40(%rbp),%rax
+  401509:   48 8b 40 08             mov    0x8(%rax),%rax
+  40150d:   48 89 45 b8             mov    %rax,-0x48(%rbp)
+  401511:   48 85 c0                test   %rax,%rax
+  401514:   0f 84 29 01 00 00       je     401643 <printTree+0x193>
+  40151a:   48 8b 45 b8             mov    -0x48(%rbp),%rax
+  40151e:   4c 8b 68 08             mov    0x8(%rax),%r13
+  401522:   4d 85 ed                test   %r13,%r13
+  401525:   0f 84 ed 00 00 00       je     401618 <printTree+0x168>
+  40152b:   4d 8b 75 08             mov    0x8(%r13),%r14
+  40152f:   4d 85 f6                test   %r14,%r14
+  401532:   0f 84 bc 00 00 00       je     4015f4 <printTree+0x144>
+  401538:   4d 8b 66 08             mov    0x8(%r14),%r12
+  40153c:   4d 85 e4                test   %r12,%r12
+  40153f:   0f 84 8c 00 00 00       je     4015d1 <printTree+0x121>
+  401545:   4d 8b 7c 24 08          mov    0x8(%r12),%r15
+  40154a:   4d 85 ff                test   %r15,%r15
+  40154d:   74 5c                   je     4015ab <printTree+0xfb>
+  40154f:   4d 8b 5f 08             mov    0x8(%r15),%r11
+  401553:   4d 85 db                test   %r11,%r11
+  401556:   74 34                   je     40158c <printTree+0xdc>
+  401558:   49 8b 7b 08             mov    0x8(%r11),%rdi
+  40155c:   4c 89 5d a8             mov    %r11,-0x58(%rbp)
+  401560:   e8 4b ff ff ff          callq  4014b0 <printTree>
+  401565:   4c 8b 5d a8             mov    -0x58(%rbp),%r11
+  401569:   48 89 de                mov    %rbx,%rsi
+  40156c:   31 c0                   xor    %eax,%eax
+  40156e:   bf 01 00 00 00          mov    $0x1,%edi
+  401573:   41 8b 4b 04             mov    0x4(%r11),%ecx
+  401577:   41 8b 13                mov    (%r11),%edx
+  40157a:   e8 f1 fa ff ff          callq  401070 <__printf_chk@plt>
+  40157f:   4c 8b 5d a8             mov    -0x58(%rbp),%r11
+  401583:   4d 8b 5b 10             mov    0x10(%r11),%r11
+  401587:   4d 85 db                test   %r11,%r11
+  40158a:   75 cc                   jne    401558 <printTree+0xa8>
+  40158c:   41 8b 4f 04             mov    0x4(%r15),%ecx
+  401590:   41 8b 17                mov    (%r15),%edx
+  401593:   48 89 de                mov    %rbx,%rsi
+  401596:   bf 01 00 00 00          mov    $0x1,%edi
+  40159b:   31 c0                   xor    %eax,%eax
+  40159d:   e8 ce fa ff ff          callq  401070 <__printf_chk@plt>
+  4015a2:   4d 8b 7f 10             mov    0x10(%r15),%r15
+  4015a6:   4d 85 ff                test   %r15,%r15
+  4015a9:   75 a4                   jne    40154f <printTree+0x9f>
+  4015ab:   41 8b 4c 24 04          mov    0x4(%r12),%ecx
+  4015b0:   41 8b 14 24             mov    (%r12),%edx
+  4015b4:   48 89 de                mov    %rbx,%rsi
+  4015b7:   31 c0                   xor    %eax,%eax
+  4015b9:   bf 01 00 00 00          mov    $0x1,%edi
+  4015be:   e8 ad fa ff ff          callq  401070 <__printf_chk@plt>
+  4015c3:   4d 8b 64 24 10          mov    0x10(%r12),%r12
+  4015c8:   4d 85 e4                test   %r12,%r12
+  4015cb:   0f 85 74 ff ff ff       jne    401545 <printTree+0x95>
+  4015d1:   41 8b 4e 04             mov    0x4(%r14),%ecx
+  4015d5:   41 8b 16                mov    (%r14),%edx
+  4015d8:   48 89 de                mov    %rbx,%rsi
+  4015db:   bf 01 00 00 00          mov    $0x1,%edi
+  4015e0:   31 c0                   xor    %eax,%eax
+  4015e2:   e8 89 fa ff ff          callq  401070 <__printf_chk@plt>
+  4015e7:   4d 8b 76 10             mov    0x10(%r14),%r14
+  4015eb:   4d 85 f6                test   %r14,%r14
+  4015ee:   0f 85 44 ff ff ff       jne    401538 <printTree+0x88>
+  4015f4:   41 8b 4d 04             mov    0x4(%r13),%ecx
+  4015f8:   41 8b 55 00             mov    0x0(%r13),%edx
+  4015fc:   48 89 de                mov    %rbx,%rsi
+  4015ff:   bf 01 00 00 00          mov    $0x1,%edi
+  401604:   31 c0                   xor    %eax,%eax
+  401606:   e8 65 fa ff ff          callq  401070 <__printf_chk@plt>
+  40160b:   4d 8b 6d 10             mov    0x10(%r13),%r13
+  40160f:   4d 85 ed                test   %r13,%r13
+  401612:   0f 85 13 ff ff ff       jne    40152b <printTree+0x7b>
+  401618:   4c 8b 75 b8             mov    -0x48(%rbp),%r14
+  40161c:   48 89 de                mov    %rbx,%rsi
+  40161f:   bf 01 00 00 00          mov    $0x1,%edi
+  401624:   31 c0                   xor    %eax,%eax
+  401626:   41 8b 4e 04             mov    0x4(%r14),%ecx
+  40162a:   41 8b 16                mov    (%r14),%edx
+  40162d:   e8 3e fa ff ff          callq  401070 <__printf_chk@plt>
+  401632:   49 8b 46 10             mov    0x10(%r14),%rax
+  401636:   48 89 45 b8             mov    %rax,-0x48(%rbp)
+  40163a:   48 85 c0                test   %rax,%rax
+  40163d:   0f 85 d7 fe ff ff       jne    40151a <printTree+0x6a>
+  401643:   4c 8b 75 c0             mov    -0x40(%rbp),%r14
+  401647:   48 89 de                mov    %rbx,%rsi
+  40164a:   bf 01 00 00 00          mov    $0x1,%edi
+  40164f:   31 c0                   xor    %eax,%eax
+  401651:   41 8b 4e 04             mov    0x4(%r14),%ecx
+  401655:   41 8b 16                mov    (%r14),%edx
+  401658:   e8 13 fa ff ff          callq  401070 <__printf_chk@plt>
+  40165d:   49 8b 46 10             mov    0x10(%r14),%rax
+  401661:   48 89 45 c0             mov    %rax,-0x40(%rbp)
+  401665:   48 85 c0                test   %rax,%rax
+  401668:   0f 85 97 fe ff ff       jne    401505 <printTree+0x55>
+  40166e:   4c 8b 7d c8             mov    -0x38(%rbp),%r15
+  401672:   48 89 de                mov    %rbx,%rsi
+  401675:   bf 01 00 00 00          mov    $0x1,%edi
+  40167a:   31 c0                   xor    %eax,%eax
+  40167c:   41 8b 4f 04             mov    0x4(%r15),%ecx
+  401680:   41 8b 17                mov    (%r15),%edx
+  401683:   e8 e8 f9 ff ff          callq  401070 <__printf_chk@plt>
+  401688:   49 8b 47 10             mov    0x10(%r15),%rax
+  40168c:   48 89 45 c8             mov    %rax,-0x38(%rbp)
+  401690:   48 85 c0                test   %rax,%rax
+  401693:   0f 85 57 fe ff ff       jne    4014f0 <printTree+0x40>
+  401699:   4c 8b 75 b0             mov    -0x50(%rbp),%r14
+  40169d:   48 89 de                mov    %rbx,%rsi
+  4016a0:   bf 01 00 00 00          mov    $0x1,%edi
+  4016a5:   31 c0                   xor    %eax,%eax
+  4016a7:   41 8b 4e 04             mov    0x4(%r14),%ecx
+  4016ab:   41 8b 16                mov    (%r14),%edx
+  4016ae:   e8 bd f9 ff ff          callq  401070 <__printf_chk@plt>
+  4016b3:   49 8b 46 10             mov    0x10(%r14),%rax
+  4016b7:   48 89 45 b0             mov    %rax,-0x50(%rbp)
+  4016bb:   48 85 c0                test   %rax,%rax
+  4016be:   0f 85 17 fe ff ff       jne    4014db <printTree+0x2b>
+  4016c4:   48 83 c4 38             add    $0x38,%rsp
+  4016c8:   5b                      pop    %rbx
+  4016c9:   41 5c                   pop    %r12
+  4016cb:   41 5d                   pop    %r13
+  4016cd:   41 5e                   pop    %r14
+  4016cf:   41 5f                   pop    %r15
+  4016d1:   5d                      pop    %rbp
+  4016d2:   c3                      retq   
+  4016d3:   66 66 2e 0f 1f 84 00    data16 nopw %cs:0x0(%rax,%rax,1)
+  4016da:   00 00 00 00 
+  4016de:   66 90                   xchg   %ax,%ax
+
+assign1-0 printTree function:
+
+00000000004014f0 <printTree>:
+  4014f0:   55                      push   %rbp
+  4014f1:   48 89 e5                mov    %rsp,%rbp
+  4014f4:   48 83 ec 10             sub    $0x10,%rsp
+  4014f8:   ff 15 fa 2a 00 00       callq  *0x2afa(%rip)        # 403ff8 <mcount@GLIBC_2.2.5>
+  4014fe:   48 89 7d f8             mov    %rdi,-0x8(%rbp)
+  401502:   48 83 7d f8 00          cmpq   $0x0,-0x8(%rbp)
+  401507:   74 40                   je     401549 <printTree+0x59>
+  401509:   48 8b 45 f8             mov    -0x8(%rbp),%rax
+  40150d:   48 8b 40 08             mov    0x8(%rax),%rax
+  401511:   48 89 c7                mov    %rax,%rdi
+  401514:   e8 d7 ff ff ff          callq  4014f0 <printTree>
+  401519:   48 8b 45 f8             mov    -0x8(%rbp),%rax
+  40151d:   8b 50 04                mov    0x4(%rax),%edx
+  401520:   48 8b 45 f8             mov    -0x8(%rbp),%rax
+  401524:   8b 00                   mov    (%rax),%eax
+  401526:   89 c6                   mov    %eax,%esi
+  401528:   48 8d 3d e0 0b 00 00    lea    0xbe0(%rip),%rdi        # 40210f <_IO_stdin_used+0x10f>
+  40152f:   b8 00 00 00 00          mov    $0x0,%eax
+  401534:   e8 17 fb ff ff          callq  401050 <printf@plt>
+  401539:   48 8b 45 f8             mov    -0x8(%rbp),%rax
+  40153d:   48 8b 40 10             mov    0x10(%rax),%rax
+  401541:   48 89 c7                mov    %rax,%rdi
+  401544:   e8 a7 ff ff ff          callq  4014f0 <printTree>
+  401549:   90                      nop
+  40154a:   c9                      leaveq 
+  40154b:   c3                      retq   
+
+In assign1-0, the printTree function is called twice. In assign1-2, the print tree function is only called once, which is a form of code motion called fewer times, through something called code factoring, which moves printtree function call down to the the bottom, outside the loop, which results in the printTree function being called once.
